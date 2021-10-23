@@ -167,6 +167,9 @@
 
 #![no_std]
 
+#[cfg(feature = "std")]
+extern crate std;
+
 const POLYNOMIAL_MAX_LENGTH: usize = 31;
 
 #[macro_use]

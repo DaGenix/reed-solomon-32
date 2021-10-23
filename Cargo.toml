@@ -13,6 +13,8 @@ version = "0.2.1"
 criterion = "0.3"
 
 [features]
+default = ["std"]
+std = []
 unsafe_indexing = []
 
 [[bench]]
