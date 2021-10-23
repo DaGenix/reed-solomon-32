@@ -11,6 +11,11 @@ version = "0.2.1"
 
 [dev-dependencies]
 rustc-serialize = "0.3"
+criterion = "0.3"
 
 [features]
 unsafe_indexing = []
+
+[[bench]]
+name = "benchmark"
+harness = false
