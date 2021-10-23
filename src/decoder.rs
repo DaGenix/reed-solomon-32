@@ -215,7 +215,7 @@ impl Decoder {
         let mut X = Polynom::new();
 
         for px in coef_pos.iter() {
-            let l = (255 - px) as i32;
+            let l = (31 - px) as i32;
             X.push(gf::pow(2, -l))
         }
 
@@ -363,7 +363,7 @@ mod tests {
 
         encoded[5] = 1;
 
-        assert_eq!([0, 7, 162, 172, 245, 176, 71, 58, 180],
+        assert_eq!([0, 7, 21, 4, 28, 30, 16, 31, 23],
                    *Decoder::new(8).calc_syndromes(&encoded));
     }
 
@@ -382,26 +382,25 @@ mod tests {
     #[test]
     fn find_errata_locator() {
         let e_pos = [19, 18, 17, 14, 15, 16];
-        assert_eq!([134, 207, 111, 227, 24, 150, 1],
+        assert_eq!([10, 11, 10, 2, 16, 15, 1],
                    *Decoder::new(6).find_errata_locator(&e_pos[..]));
     }
 
     #[test]
     fn find_error_evaluator() {
-        let synd = [232, 103, 78, 56, 109, 59, 242, 42, 64, 0];
-        let err_loc = [134, 207, 111, 227, 24, 150, 1];
+        let synd = [0, 7, 25, 13, 21, 5, 6];
+        let err_loc = [10, 11, 10, 2, 16, 15, 1];
 
-        assert_eq!([148, 151, 175, 126, 68, 64, 0],
+        assert_eq!([22, 13, 28, 6, 12, 2, 6],
                    *Decoder::new(6).find_error_evaluator(&synd, &err_loc, 6));
     }
 
     #[test]
     fn correct_errata() {
-        let msg = [0, 0, 0, 2, 2, 2, 119, 111, 114, 108, 100, 145, 124, 96, 105, 94, 31, 179, 149, 163];
-        let synd = [0, 64, 42, 242, 59, 109, 56, 78, 103, 232];
+        let msg = [0, 0, 0, 2, 2, 2, 19, 11, 14, 18, 1, 19, 16, 3, 28, 4, 20, 12, 12];
+        let synd = [0, 11, 9, 28, 29, 14, 12, 12, 1, 10];
         let err_pos = [0, 1, 2, 5, 4, 3];
-        let result = [104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 145, 124, 96, 105, 94,
-                      31, 179, 149, 163];
+        let result = [10, 11, 18, 18, 11, 3, 19, 11, 14, 18, 1, 19, 16, 3, 28, 4, 20, 12, 12];
 
         assert_eq!(result,
                    *Decoder::new(err_pos.len()).correct_errata(&msg, &synd, &err_pos).0);
@@ -415,8 +414,8 @@ mod tests {
         let encoded = encoder.encode(&msg[..]);
         let mut errd = *encoded;
 
-        errd[0] = 255;
-        errd[3] = 255;
+        errd[0] = 31;
+        errd[3] = 31;
 
         let (_correct,err) = Decoder::new(10).correct_err_count(&errd, None).unwrap();
 
@@ -425,12 +424,12 @@ mod tests {
 
     #[test]
     fn find_error_locator() {
-        let synd = [79, 25, 0, 160, 198, 122, 192, 169, 232];
+        let synd = [29, 17, 2, 19, 4, 7, 28, 21, 6];
         let nsym = 9;
         let erase_loc = None;
         let erase_count = 3;
 
-        let result = [193, 144, 121, 1];
+        let result = [7, 20, 30, 1];
 
         let error_loc = Decoder::new(nsym).find_error_locator(&synd, erase_loc, erase_count);
 
@@ -440,8 +439,8 @@ mod tests {
 
     #[test]
     fn find_errors() {
-        let err_loc = [1, 121, 144, 193];
-        let msg_len = 20;
+        let err_loc = [1, 24, 2, 4];
+        let msg_len = 16;
         let result = [5, 4, 3];
 
         let err_pos = Decoder::new(6).find_errors(&err_loc, msg_len);
@@ -449,8 +448,8 @@ mod tests {
         assert!(err_pos.is_ok());
         assert_eq!(result, *err_pos.unwrap());
 
-        let err_loc = [1, 134, 181];
-        let msg_len = 12;
+        let err_loc = [1, 2, 27, 25];
+        let msg_len = 16;
 
         let err_pos = Decoder::new(6).find_errors(&err_loc, msg_len);
 
@@ -459,23 +458,22 @@ mod tests {
 
     #[test]
     fn forney_syndromes() {
-        let synd = [0, 64, 42, 242, 59, 109, 56, 78, 103, 232];
-        let pos = [0, 1, 2];
-        let nmess = 20;
+        let synd = [0, 29, 20, 23, 13, 24, 11];
+        let pos = [3, 4, 5];
+        let nmess = 16;
 
-        let result = [79, 25, 0, 160, 198, 122, 192, 169, 232];
+        let result = [0, 0, 0, 17, 29, 11];
         assert_eq!(result,
                    *Decoder::new(6).forney_syndromes(&synd, &pos, nmess));
     }
 
     #[test]
     fn decode() {
-        let mut msg = [0, 2, 2, 2, 2, 2, 119, 111, 114, 108, 100, 145, 124, 96, 105, 94, 31, 179, 149, 163];
+        let mut msg = [0, 1, 2, 31, 31, 31, 31, 31, 31, 9, 4, 1, 17, 17, 3, 9, 19, 24, 5];
         let ecc = 9;
-        let erase_pos = [0, 1, 2];
+        let erase_pos = [3, 4, 5];
 
-        let result = [104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 145, 124, 96, 105, 94,
-                      31, 179, 149, 163];
+        let result = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 1, 17, 17, 3, 9, 19, 24, 5];
 
         let decoder = Decoder::new(ecc);
         let decoded = decoder.correct(&mut msg[..], Some(&erase_pos)).unwrap();

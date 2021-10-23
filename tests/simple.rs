@@ -7,7 +7,7 @@ const ECC_LEN: usize = 8;
 
 #[test]
 fn helloworld() {
-    let data = b"Hello, World!";
+    let data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     // Create encoder and decoder
     let enc = Encoder::new(ECC_LEN);
@@ -30,7 +30,7 @@ fn helloworld() {
 
 #[test]
 fn with_erasures() {
-    let data = b"Hello, World!";
+    let data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     // Create encoder and decoder
     let enc = Encoder::new(ECC_LEN);

@@ -162,49 +162,36 @@ mod tests {
 
     #[test]
     fn mul() {
-        let px = [0, 5, 10, 15, 20];
-        let py = [3, 9, 17, 24, 75];
-        assert_eq!([0, 15, 51, 30, 153, 193, 53, 115, 245], *(px.mul(&py)));
+        let px = [0, 5, 10, 15];
+        let py = [3, 9, 17, 24];
+        assert_eq!([0, 15, 22, 30, 20, 15, 28], *(px.mul(&py)));
 
         let px = [0, 5, 10];
-        let py = [3, 9, 17, 24, 75];
+        let py = [3, 9, 17, 24];
 
-        assert_eq!([0, 15, 51, 15, 210, 138, 244], *(px.mul(&py)));
-        assert_eq!([0, 15, 51, 15, 210, 138, 244], *(py.mul(&px)));
+        assert_eq!([0, 15, 22, 15, 12, 11], *(px.mul(&py)));
+        assert_eq!([0, 15, 22, 15, 12, 11], *(py.mul(&px)));
     }
 
     #[test]
     fn div() {
-        let px = [0, 5, 10, 15, 20];
-        let py = [3, 9, 17, 24, 75];
+        let px = [0, 5, 10, 15];
+        let py = [3, 9, 17, 24];
 
         let (q, r) = px.div(&py);
         assert_eq!([0], *q);
-        assert_eq!([5, 10, 15, 20], *r);
+        assert_eq!([5, 10, 15], *r);
 
         let (q, r) = py.div(&px);
         assert_eq!([3], *q);
-        assert_eq!([6, 15, 9, 119], *r);
-
-        let px = [0, 5, 10];
-        let py = [3, 9, 17, 24, 75];
-
-        let empty: [u8; 0] = [];
-        let (q, r) = px.div(&py);
-
-        assert_eq!(empty, *q);
-        assert_eq!([0, 5, 10], *r);
-
-        let (q, r) = py.div(&px);
-        assert_eq!([3, 6, 17], *q);
-        assert_eq!([113, 225], *r);
+        assert_eq!([6, 15, 9], *r);
     }
 
     #[test]
     fn eval() {
         let p = [0, 5, 10, 15, 20];
-        let tests = [4, 7, 21, 87, 35, 255];
-        let answers = [213, 97, 132, 183, 244, 92];
+        let tests = [4, 7, 21];
+        let answers = [27, 30, 21];
 
         for i in 0..tests.len() {
             assert_eq!(answers[i], p.eval(tests[i]));
