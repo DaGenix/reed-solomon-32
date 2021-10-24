@@ -11,6 +11,15 @@ pub enum DecoderError {
     TooManyErrors,
 }
 
+impl core::fmt::Display for DecoderError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Debug::fmt(self, f)
+    }
+}
+
+#[cfg(feature = "std")]
+impl std::error::Error for DecoderError { }
+
 type Result<T> = core::result::Result<T, DecoderError>;
 
 /// Reed-Solomon BCH decoder
