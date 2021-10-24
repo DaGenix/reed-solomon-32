@@ -3,6 +3,47 @@ use ::gf::poly::Polynom;
 use ::buffer::Buffer;
 use ::gf;
 
+/// Encoder error
+#[derive(Copy, Clone)]
+pub enum EncoderError {
+    /// An invalid input symbol was detected. All inputs must be numbers between 0 and 31, inclusive.
+    InvalidSymbol,
+    /// A message was too long. Messages must be no longer than 31 symbols.
+    MessageTooLong,
+}
+
+impl core::fmt::Debug for EncoderError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            EncoderError::InvalidSymbol =>
+                write!(f, "Invalid symbol. All symbols must be be in the range [0, 31]."),
+            EncoderError::MessageTooLong =>
+                write!(f, "Message is too long: Length is greater than maximum of 31."),
+        }
+    }
+}
+
+impl core::fmt::Display for EncoderError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Debug::fmt(self, f)
+    }
+}
+
+#[cfg(feature = "std")]
+impl std::error::Error for EncoderError { }
+
+type Result<T> = core::result::Result<T, EncoderError>;
+
+fn check_data(msg: &[u8]) -> Result<()> {
+    if msg.len() > 31 {
+        return Err(EncoderError::MessageTooLong);
+    }
+    if msg.iter().any(|&x| x > 31) {
+        return Err(EncoderError::InvalidSymbol);
+    }
+    Ok(())
+}
+
 /// Reed-Solomon BCH encoder
 #[derive(Debug)]
 pub struct Encoder {
@@ -31,13 +72,15 @@ impl Encoder {
     /// let data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     /// let encoder = Encoder::new(8);
     ///
-    /// let encoded = encoder.encode(&data);
+    /// let encoded = encoder.encode(&data).unwrap();
     ///
     /// println!("whole: {:?}", &encoded[..]);
     /// println!("data:  {:?}", encoded.data());
     /// println!("ecc:   {:?}", encoded.ecc());
     /// ```
-    pub fn encode(&self, data: &[u8]) -> Buffer {
+    pub fn encode(&self, data: &[u8]) -> Result<Buffer> {
+        check_data(data)?;
+
         let mut data_out = Polynom::from(data);
         let data_len = data.len();
 
@@ -60,7 +103,7 @@ impl Encoder {
         }
 
         data_out[..data_len].copy_from_slice(data);
-        Buffer::from_polynom(data_out, data_len)
+        Ok(Buffer::from_polynom(data_out, data_len))
     }
 }
 
@@ -100,7 +143,7 @@ mod tests {
         let ecc = [5, 10, 26, 18, 9, 22, 13, 21];
 
         let encoder = super::Encoder::new(ecc.len());
-        let encoded = encoder.encode(&data[..]);
+        let encoded = encoder.encode(&data[..]).unwrap();
 
         assert_eq!(data, encoded.data());
         assert_eq!(ecc, encoded.ecc());

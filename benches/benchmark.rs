@@ -12,7 +12,7 @@ struct TestEncode {
 
 fn test_encode(params: TestEncode) -> Buffer {
     let encoder = Encoder::new(params.ecc);
-    encoder.encode(&params.message[..params.message_len])
+    encoder.encode(&params.message[..params.message_len]).unwrap()
 }
 
 struct TestDecode {

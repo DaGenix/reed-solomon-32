@@ -14,7 +14,7 @@ fn main() {
     let dec = Decoder::new(ecc_len);
 
     // Encode data
-    let encoded = enc.encode(&data);
+    let encoded = enc.encode(&data).unwrap();
 
     // Simulate some transmission errors
     let mut corrupted = *encoded;

@@ -14,7 +14,7 @@ fn helloworld() {
     let dec = Decoder::new(ECC_LEN);
 
     // Encode data
-    let encoded = enc.encode(&data[..]);
+    let encoded = enc.encode(&data[..]).unwrap();
 
     // Simulate some transmission errors
     let mut corrupted = *encoded;
@@ -37,7 +37,7 @@ fn with_erasures() {
     let dec = Decoder::new(ECC_LEN);
 
     // Encode data
-    let encoded = enc.encode(&data[..]);
+    let encoded = enc.encode(&data[..]).unwrap();
 
     // Simulate some transmission errors
     let mut corrupted = *encoded;

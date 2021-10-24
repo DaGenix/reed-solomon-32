@@ -20,7 +20,7 @@
 //!     let dec = Decoder::new(ecc_len);
 //!
 //!     // Encode data
-//!     let encoded = enc.encode(&data);
+//!     let encoded = enc.encode(&data).unwrap();
 //!
 //!     // Simulate some transmission errors
 //!     let mut corrupted = *encoded;
@@ -180,6 +180,7 @@ mod decoder;
 mod buffer;
 
 pub use encoder::Encoder;
+pub use encoder::EncoderError;
 pub use decoder::Decoder;
 pub use decoder::DecoderError;
 pub use buffer::Buffer;
