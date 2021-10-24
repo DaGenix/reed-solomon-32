@@ -5,10 +5,27 @@ use ::buffer::Buffer;
 use ::gf;
 
 /// Decoder error
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub enum DecoderError {
     /// Message is unrecoverably corrupted
     TooManyErrors,
+    /// An invalid input symbol was detected. All inputs must be numbers between 0 and 31, inclusive.
+    InvalidSymbol,
+    /// A message was too long. Messages must be no longer than 31 symbols.
+    MessageTooLong,
+}
+
+impl core::fmt::Debug for DecoderError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            DecoderError::TooManyErrors =>
+                write!(f, "Message is unrecoverably corrupted"),
+            DecoderError::InvalidSymbol =>
+                write!(f, "Invalid symbol. All symbols must be be in the range [0, 31]."),
+            DecoderError::MessageTooLong =>
+                write!(f, "Message is too long: Length is greater than maximum of 31."),
+        }
+    }
 }
 
 impl core::fmt::Display for DecoderError {
@@ -21,6 +38,16 @@ impl core::fmt::Display for DecoderError {
 impl std::error::Error for DecoderError { }
 
 type Result<T> = core::result::Result<T, DecoderError>;
+
+fn check_message(msg: &[u8]) -> Result<()> {
+    if msg.len() > 31 {
+        return Err(DecoderError::MessageTooLong);
+    }
+    if msg.iter().any(|&x| x > 31) {
+        return Err(DecoderError::InvalidSymbol);
+    }
+    Ok(())
+}
 
 /// Reed-Solomon BCH decoder
 #[derive(Debug, Copy, Clone)]
@@ -73,9 +100,9 @@ impl Decoder {
                              msg: &[u8],
                              erase_pos: Option<&[u8]>)
                              -> Result<(Buffer, usize)> {
-       let mut msg = Buffer::from_slice(msg, msg.len() - self.ecc_len);
+        check_message(msg)?;
 
-        assert!(msg.len() < 256);
+       let mut msg = Buffer::from_slice(msg, msg.len() - self.ecc_len);
 
         let erase_pos = if let Some(erase_pos) = erase_pos {
             for e_pos in erase_pos {
@@ -109,7 +136,7 @@ impl Decoder {
         let (msg_out, fixed) = self.correct_errata(&msg, &synd, &err_pos);
 
         // Check output message correctness
-        if self.is_corrupted(&msg_out) {
+        if self.is_corrupted(&msg_out)? {
             Err(DecoderError::TooManyErrors)
         } else {
             Ok((Buffer::from_polynom(msg_out, msg.len() - self.ecc_len), fixed))
@@ -164,16 +191,17 @@ impl Decoder {
     /// // Encode message
     /// let mut encoded = encoder.encode(&[1, 2, 3, 4]);
     ///
-    /// assert_eq!(decoder.is_corrupted(&encoded), false);
+    /// assert_eq!(decoder.is_corrupted(&encoded).unwrap(), false);
     ///
     /// // Corrupt message
     /// encoded[2] = 1;
     /// encoded[3] = 2;
     ///
-    /// assert_eq!(decoder.is_corrupted(&encoded), true);
+    /// assert_eq!(decoder.is_corrupted(&encoded).unwrap(), true);
     /// ```
-    pub fn is_corrupted(&self, msg: &[u8]) -> bool {
-        (0..self.ecc_len).any(|x| msg.eval(gf::pow(2, x as i32)) != 0)
+    pub fn is_corrupted(&self, msg: &[u8]) -> Result<bool> {
+        check_message(msg)?;
+        Ok((0..self.ecc_len).any(|x| msg.eval(gf::pow(2, x as i32)) != 0))
     }
 
     fn calc_syndromes(&self, msg: &[u8]) -> Polynom {
@@ -381,11 +409,11 @@ mod tests {
         let px = [1, 2, 3, 4, 5, 6, 7, 8, 9];
         let mut encoded = Encoder::new(8).encode(&px[..]);
 
-        assert_eq!(false, Decoder::new(8).is_corrupted(&encoded));
+        assert_eq!(false, Decoder::new(8).is_corrupted(&encoded).unwrap());
 
         encoded[5] = 1;
 
-        assert_eq!(true, Decoder::new(8).is_corrupted(&encoded));
+        assert_eq!(true, Decoder::new(8).is_corrupted(&encoded).unwrap());
     }
 
     #[test]
