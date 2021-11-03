@@ -44,10 +44,7 @@
 //! }
 //! ```
 
-#![no_std]
-
-#[cfg(feature = "std")]
-extern crate std;
+#![cfg_attr(not(feature = "std"), no_std)]
 
 const POLYNOMIAL_MAX_LENGTH: usize = 31;
 
