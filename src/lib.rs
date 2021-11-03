@@ -44,12 +44,6 @@
 //! }
 //! ```
 
-#![cfg_attr(feature = "dev", feature(plugin))]
-#![cfg_attr(feature = "dev", plugin(clippy))]
-#![warn(missing_docs, missing_debug_implementations,
-        trivial_casts, trivial_numeric_casts,
-        unstable_features)]
-
 #![no_std]
 
 #[cfg(feature = "std")]
