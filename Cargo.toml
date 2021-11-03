@@ -1,13 +1,13 @@
 [package]
-name = "reed-solomon"
+name = "reed-solomon-32"
 description = "Reed-Solomon BCH encoder and decoder with support of no_std environment"
-repository = "https://github.com/mersinvald/reed-solomon-rs"
-documentation = "https://docs.rs/reed-solomon/"
+repository = "https://github.com/DaGenix/reed-solomon-32"
+documentation = "https://docs.rs/reed-solomon-32/"
 readme = "README.md"
 license = "MIT"
-keywords = ["cryptography", "ecc", "bch", "no_std"]
-authors = ["Mike Lubinets <lubinetsm@yandex.ru>"]
-version = "0.2.1"
+keywords = ["ecc", "bch", "no_std"]
+authors = ["Mike Lubinets <lubinetsm@yandex.ru>", "Palmer Cox <p@lmercox.com>"]
+version = "1.0.0"
 
 [dev-dependencies]
 criterion = "0.3"

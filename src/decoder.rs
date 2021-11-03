@@ -60,7 +60,7 @@ impl Decoder {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Decoder;
+    /// use reed_solomon_32::Decoder;
     ///
     /// let decoder = Decoder::new(8);
     /// ```
@@ -73,8 +73,8 @@ impl Decoder {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Encoder;
-    /// use reed_solomon::Decoder;
+    /// use reed_solomon_32::Encoder;
+    /// use reed_solomon_32::Decoder;
     ///
     /// // Create encoder and decoder
     /// let encoder = Encoder::new(4);
@@ -147,8 +147,8 @@ impl Decoder {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Encoder;
-    /// use reed_solomon::Decoder;
+    /// use reed_solomon_32::Encoder;
+    /// use reed_solomon_32::Decoder;
     ///
     /// // Create encoder and decoder
     /// let encoder = Encoder::new(4);
@@ -181,8 +181,8 @@ impl Decoder {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Encoder;
-    /// use reed_solomon::Decoder;
+    /// use reed_solomon_32::Encoder;
+    /// use reed_solomon_32::Decoder;
     ///
     /// // Create encoder and decoder
     /// let encoder = Encoder::new(4);

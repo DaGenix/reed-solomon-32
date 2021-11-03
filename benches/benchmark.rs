@@ -1,8 +1,8 @@
-extern crate reed_solomon;
+extern crate reed_solomon_32;
 extern crate criterion;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use reed_solomon::{Buffer, Decoder, Encoder};
+use reed_solomon_32::{Buffer, Decoder, Encoder};
 
 struct TestEncode {
     ecc: usize,

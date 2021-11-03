@@ -1,30 +1,27 @@
 # Reed-Solomon BCH
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
-[![Build Status](https://travis-ci.org/mersinvald/reed-solomon-rs.svg?branch=master)](https://travis-ci.org/mersinvald/reed-solomon-rs)
-[![Crates.io](https://img.shields.io/crates/v/reed-solomon.svg)](https://crates.io/crates/reed-solomon)
-[![Documentation](https://docs.rs/reed-solomon/badge.svg)](https://docs.rs/reed-solomon)
+[![Crates.io](https://img.shields.io/crates/v/reed-solomon-32.svg)](https://crates.io/crates/reed-solomon-32)
+[![Documentation](https://docs.rs/reed-solomon-32/badge.svg)](https://docs.rs/reed-solomon-32)
 
 Reed-Solomon BCH encoder and decoder implemented in Rust.
+
 This is a port of python implementation from [Wikiversity](https://en.wikiversity.org/wiki/Reed–Solomon_codes_for_coders)
+
+
+This is a fork of <https://github.com/mersinvald/reed-solomon-rs> - the primary change
+being that it operates in GF(2^5) instead of GF(2^8).
 
 ## Setup 
 
 ```toml
 [dependencies]
-reed-solomon = "0.2"
-```
-
-```rust
-extern crate reed_solomon
+reed-solomon-32 = "^1.0.0"
 ```
 
 ## Example
 
 ```rust
-extern crate reed_solomon;
-
-use reed_solomon::Encoder;
-use reed_solomon::Decoder;
+use reed_solomon_32::Encoder;
+use reed_solomon_32::Decoder;
 
 fn main() {
     let data = b"Hello World!";

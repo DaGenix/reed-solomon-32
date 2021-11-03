@@ -55,7 +55,7 @@ impl Encoder {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Encoder;
+    /// use reed_solomon_32::Encoder;
     ///
     /// let encoder = Encoder::new(8);
     /// ```
@@ -67,7 +67,7 @@ impl Encoder {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Encoder;
+    /// use reed_solomon_32::Encoder;
     ///
     /// let data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     /// let encoder = Encoder::new(8);

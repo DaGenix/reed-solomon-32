@@ -1,7 +1,7 @@
-extern crate reed_solomon;
+extern crate reed_solomon_32;
 
-use reed_solomon::Encoder;
-use reed_solomon::Decoder;
+use reed_solomon_32::Encoder;
+use reed_solomon_32::Decoder;
 
 const ECC_LEN: usize = 8;
 

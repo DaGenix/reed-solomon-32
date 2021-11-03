@@ -1,7 +1,7 @@
-extern crate reed_solomon;
+extern crate reed_solomon_32;
 
-use reed_solomon::Encoder;
-use reed_solomon::Decoder;
+use reed_solomon_32::Encoder;
+use reed_solomon_32::Decoder;
 
 fn main() {
     let data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
