@@ -8,6 +8,7 @@ license = "MIT"
 keywords = ["ecc", "bch", "no_std"]
 authors = ["Mike Lubinets <lubinetsm@yandex.ru>", "Palmer Cox <p@lmercox.com>"]
 version = "1.0.0"
+edition = "2018"
 
 [dev-dependencies]
 criterion = "0.3"

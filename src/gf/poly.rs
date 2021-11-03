@@ -1,6 +1,6 @@
 #[derive(Copy)]
 pub struct Polynom {
-    array: [u8; ::POLYNOMIAL_MAX_LENGTH],
+    array: [u8; crate::POLYNOMIAL_MAX_LENGTH],
     length: usize,
     dirty: bool,
 }
@@ -9,7 +9,7 @@ impl Polynom {
     #[inline]
     pub fn new() -> Polynom {
         Polynom {
-            array: [0; ::POLYNOMIAL_MAX_LENGTH],
+            array: [0; crate::POLYNOMIAL_MAX_LENGTH],
             length: 0,
             dirty: false,
         }
@@ -91,7 +91,7 @@ impl DerefMut for Polynom {
 impl<'a> From<&'a [u8]> for Polynom {
     #[inline]
     fn from(slice: &'a [u8]) -> Polynom {
-        debug_assert!(slice.len() <= ::POLYNOMIAL_MAX_LENGTH);
+        debug_assert!(slice.len() <= crate::POLYNOMIAL_MAX_LENGTH);
         let mut poly = Polynom::with_length(slice.len());
         poly[..].copy_from_slice(slice);
         poly

@@ -1,6 +1,6 @@
 use core::cmp::max;
-use ::gf::poly::Polynom;
-use ::gf;
+use crate::gf::poly::Polynom;
+use crate::gf;
 
 pub trait Scale {
     fn scale(&self, x: u8) -> Polynom;

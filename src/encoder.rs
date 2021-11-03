@@ -1,7 +1,7 @@
-use ::gf::poly_math::*;
-use ::gf::poly::Polynom;
-use ::buffer::Buffer;
-use ::gf;
+use crate::gf::poly_math::*;
+use crate::gf::poly::Polynom;
+use crate::buffer::Buffer;
+use crate::gf;
 
 /// Encoder error
 #[derive(Copy, Clone)]
