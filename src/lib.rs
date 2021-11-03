@@ -43,13 +43,6 @@
 //!     println!("repaired:              {:?}", recv_str);
 //! }
 //! ```
-//!
-//! # Unsafe
-//! This library uses some slice indexing that is boundary checked.
-//!
-//! You can disable checks with library feature `unsafe_indexing`, 
-//! then unsafe `Slice::get_inchecked()` would be utilized to improve speed where unchecked indexing
-//! is considered safe and LLVM cannot drop boundary checks.
 
 #![cfg_attr(feature = "dev", feature(plugin))]
 #![cfg_attr(feature = "dev", plugin(clippy))]

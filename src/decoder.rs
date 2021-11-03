@@ -208,7 +208,7 @@ impl Decoder {
         // index 0 is a pad for mathematical precision
         let mut synd = Polynom::with_length(self.ecc_len + 1);
         for i in 0..self.ecc_len {
-            uncheck_mut!(synd[i + 1]) = msg.eval(gf::pow(2, i as i32))
+            synd[i + 1] = msg.eval(gf::pow(2, i as i32))
         }
 
         synd
@@ -280,8 +280,8 @@ impl Decoder {
 
             let magnitude = gf::div(y, err_loc_prime);
 
-            let E_index = uncheck!(err_pos[i]) as usize;
-            uncheck_mut!(E[E_index]) = magnitude;
+            let E_index = err_pos[i] as usize;
+            E[E_index] = magnitude;
             fixed += 1;
         }
 
@@ -313,10 +313,10 @@ impl Decoder {
                 i + synd_shift
             };
 
-            let mut delta = uncheck!(synd[K]);
+            let mut delta = synd[K];
             for j in 1..err_loc.len() {
                 let d_index = err_loc.len() - j - 1;
-                delta ^= gf::mul(err_loc[d_index], uncheck!(synd[K - j]));
+                delta ^= gf::mul(err_loc[d_index], synd[K - j]);
             }
 
             old_loc.push(0);

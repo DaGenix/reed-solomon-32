@@ -89,15 +89,15 @@ impl Encoder {
         let gen = self.generator;
         let mut lgen = Polynom::with_length(self.generator.len());
         for (i, gen_i) in gen.iter().enumerate() {
-            uncheck_mut!(lgen[i]) = gf::LOG[*gen_i as usize];
+            lgen[i] = gf::LOG[*gen_i as usize];
         } 
         
         for i in 0..data_len {
-            let coef = uncheck!(data_out[i]);
+            let coef = data_out[i];
             if coef != 0 {
                 let lcoef = gf::LOG[coef as usize] as usize;
                 for j in 1..gen.len() {
-                    uncheck_mut!(data_out[i + j]) ^= gf::EXP[(lcoef + lgen[j] as usize)];
+                    data_out[i + j] ^= gf::EXP[(lcoef + lgen[j] as usize)];
                 }
             }
         }

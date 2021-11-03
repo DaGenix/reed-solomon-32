@@ -47,12 +47,12 @@ impl Add for [u8] {
 
         for (i, x) in self.iter().enumerate() {
             let index = i + poly.len() - self.len();
-            uncheck_mut!(poly[index]) = *x;
+            poly[index] = *x;
         }
 
         for (i, x) in rhs.iter().enumerate() {
             let index = i + poly.len() - rhs.len();
-            uncheck_mut!(poly[index]) ^= *x;
+            poly[index] ^= *x;
         }
 
         poly
@@ -72,7 +72,7 @@ impl Mul for [u8] {
 
         for (j, rhs_x) in rhs.iter().enumerate() {
             for (i, self_x) in self.iter().enumerate() {
-                uncheck_mut!(poly[i + j]) ^= gf::mul(*self_x, *rhs_x);
+                poly[i + j] ^= gf::mul(*self_x, *rhs_x);
             }
         }
 
@@ -91,11 +91,11 @@ impl Div for [u8] {
         }
 
         for i in 0..(self.len() - divisor_degree) {
-            let coef = uncheck!(poly[i]);
+            let coef = poly[i];
             if coef != 0 {
                 for j in 1..rhs.len() {
                     if rhs[j] != 0 {
-                        uncheck_mut!(poly[i + j]) ^= gf::mul(rhs[j], coef);
+                        poly[i + j] ^= gf::mul(rhs[j], coef);
                     }
                 }
             }

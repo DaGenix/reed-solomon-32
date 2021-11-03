@@ -34,12 +34,12 @@ pub fn mul(x: u8, y: u8) -> u8 {
     if x == 0 || y == 0 {
         0
     } else {
-        let log_x = uncheck!(LOG[x as usize]);
-        let log_y = uncheck!(LOG[y as usize]);
+        let log_x = LOG[x as usize];
+        let log_y = LOG[y as usize];
         let exp_index = log_x as usize + 
                         log_y as usize;
 
-        uncheck!(EXP[exp_index])
+        EXP[exp_index]
     }
 }
 
@@ -49,17 +49,17 @@ pub fn div(x: u8, y: u8) -> u8 {
     if x == 0 {
         0
     } else {
-        let log_x = uncheck!(LOG[x as usize]) as usize;
-        let log_y = uncheck!(LOG[y as usize]) as usize;
+        let log_x = LOG[x as usize] as usize;
+        let log_y = LOG[y as usize] as usize;
         let exp_index = (log_x + 31 - log_y) % 31;
 
-        uncheck!(EXP[exp_index])
+        EXP[exp_index]
     }
 }
 
 #[inline]
 pub fn pow(x: u8, power: i32) -> u8 {
-    let mut i = uncheck!(LOG[x as usize]) as i32
+    let mut i = LOG[x as usize] as i32
             * power
             % 31;
 
@@ -67,13 +67,13 @@ pub fn pow(x: u8, power: i32) -> u8 {
         i += 31;
     }
 
-    uncheck!(EXP[i as usize])
+    EXP[i as usize]
 }
 
 #[inline]
 pub fn inverse(x: u8) -> u8 {
-    let exp_index = 31 - uncheck!(LOG[x as usize]);
-    uncheck!(EXP[exp_index as usize])
+    let exp_index = 31 - LOG[x as usize];
+    EXP[exp_index as usize]
 }
 
 #[cfg(test)]

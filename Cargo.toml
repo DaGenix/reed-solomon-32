@@ -16,7 +16,6 @@ criterion = "0.3"
 [features]
 default = ["std"]
 std = []
-unsafe_indexing = []
 
 [[bench]]
 name = "benchmark"
