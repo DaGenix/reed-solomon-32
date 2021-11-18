@@ -1,6 +1,6 @@
 extern crate reed_solomon_32;
 
-use reed_solomon_32::Encoder;
+use reed_solomon_32::encode;
 use reed_solomon_32::Decoder;
 
 const ECC_LEN: usize = 8;
@@ -10,11 +10,10 @@ fn helloworld() {
     let data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     // Create encoder and decoder
-    let enc = Encoder::new(ECC_LEN);
     let dec = Decoder::new(ECC_LEN);
 
     // Encode data
-    let encoded = enc.encode(&data[..]).unwrap();
+    let encoded = encode(&data[..], ECC_LEN).unwrap();
 
     // Simulate some transmission errors
     let mut corrupted = *encoded;
@@ -33,11 +32,10 @@ fn with_erasures() {
     let data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     // Create encoder and decoder
-    let enc = Encoder::new(ECC_LEN);
     let dec = Decoder::new(ECC_LEN);
 
     // Encode data
-    let encoded = enc.encode(&data[..]).unwrap();
+    let encoded = encode(&data[..], ECC_LEN).unwrap();
 
     // Simulate some transmission errors
     let mut corrupted = *encoded;

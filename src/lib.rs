@@ -7,7 +7,7 @@
 //!
 //! # Example
 //! ```rust
-//! use reed_solomon_32::Encoder;
+//! use reed_solomon_32::encode;
 //! use reed_solomon_32::Decoder;
 //!
 //! fn main() {
@@ -17,11 +17,10 @@
 //!     let ecc_len = 8;
 //!
 //!     // Create encoder and decoder with
-//!     let enc = Encoder::new(ecc_len);
 //!     let dec = Decoder::new(ecc_len);
 //!
 //!     // Encode data
-//!     let encoded = enc.encode(&data).unwrap();
+//!     let encoded = encode(&data, ecc_len).unwrap();
 //!
 //!     // Simulate some transmission errors
 //!     let mut corrupted = *encoded;
@@ -51,12 +50,61 @@ const POLYNOMIAL_MAX_LENGTH: usize = 31;
 #[macro_use]
 mod macros;
 mod gf;
-mod encoder;
+mod encoder_impl;
 mod decoder;
 mod buffer;
 
-pub use encoder::Encoder;
-pub use encoder::EncoderError;
+pub use encoder_impl::EncoderError;
+pub use encoder_impl::encode;
 pub use decoder::Decoder;
 pub use decoder::DecoderError;
 pub use buffer::Buffer;
+
+pub mod encoder {
+    //! This is a specialized module and generally the [`encode`](crate::encode)
+    //! function should be preferred.
+    //!
+    //! The downside of the `encode` function is that it will cause around 500 bytes of
+    //! data tables to be included in the final binary - with the majority of that data
+    //! only being useful for larger ECC sizes that are unlikely to be used (eg,
+    //! the table for ECC size 30 takes up 31 bytes, the table for ECC size 29 takes
+    //! up 30 bytes - but neither makes much sense in practical use).
+    //!
+    //! By using the constants in this module, at LTO pass may be able to remove unused
+    //! tables from the final binary. Not all targets will be able to take practical
+    //! advantage of this, however.
+    pub use crate::encoder_impl::{
+        Encoder,
+        ENCODER_0,
+        ENCODER_1,
+        ENCODER_2,
+        ENCODER_3,
+        ENCODER_4,
+        ENCODER_5,
+        ENCODER_6,
+        ENCODER_7,
+        ENCODER_8,
+        ENCODER_9,
+        ENCODER_10,
+        ENCODER_11,
+        ENCODER_12,
+        ENCODER_13,
+        ENCODER_14,
+        ENCODER_15,
+        ENCODER_16,
+        ENCODER_17,
+        ENCODER_18,
+        ENCODER_19,
+        ENCODER_20,
+        ENCODER_21,
+        ENCODER_22,
+        ENCODER_23,
+        ENCODER_24,
+        ENCODER_25,
+        ENCODER_26,
+        ENCODER_27,
+        ENCODER_28,
+        ENCODER_29,
+        ENCODER_30,
+    };
+}

@@ -73,15 +73,14 @@ impl Decoder {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon_32::Encoder;
+    /// use reed_solomon_32::encode;
     /// use reed_solomon_32::Decoder;
     ///
-    /// // Create encoder and decoder
-    /// let encoder = Encoder::new(4);
+    /// // decoder
     /// let decoder = Decoder::new(4);
     ///
     /// // Encode message
-    /// let mut encoded = encoder.encode(&[1, 2, 3, 4]).unwrap();
+    /// let mut encoded = encode(&[1, 2, 3, 4], 4).unwrap();
     ///
     /// // Corrupt message
     /// encoded[2] = 1;
@@ -147,15 +146,14 @@ impl Decoder {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon_32::Encoder;
+    /// use reed_solomon_32::encode;
     /// use reed_solomon_32::Decoder;
     ///
-    /// // Create encoder and decoder
-    /// let encoder = Encoder::new(4);
+    /// // decoder
     /// let decoder = Decoder::new(4);
     ///
     /// // Encode message
-    /// let mut encoded = encoder.encode(&[1, 2, 3, 4]).unwrap();
+    /// let mut encoded = encode(&[1, 2, 3, 4], 4).unwrap();
     ///
     /// // Corrupt message
     /// encoded[2] = 1;
@@ -181,15 +179,14 @@ impl Decoder {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon_32::Encoder;
+    /// use reed_solomon_32::encode;
     /// use reed_solomon_32::Decoder;
     ///
     /// // Create encoder and decoder
-    /// let encoder = Encoder::new(4);
     /// let decoder = Decoder::new(4);
     ///
     /// // Encode message
-    /// let mut encoded = encoder.encode(&[1, 2, 3, 4]).unwrap();
+    /// let mut encoded = encode(&[1, 2, 3, 4], 4).unwrap();
     ///
     /// assert_eq!(decoder.is_corrupted(&encoded).unwrap(), false);
     ///
@@ -389,12 +386,12 @@ impl Decoder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Encoder;
+    use crate::encode;
 
     #[test]
     fn calc_syndromes() {
         let px = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        let mut encoded = Encoder::new(8).encode(&px[..]).unwrap();
+        let mut encoded = encode(&px[..], 8).unwrap();
 
         assert_eq!([0; 9], *Decoder::new(8).calc_syndromes(&encoded));
 
@@ -407,7 +404,7 @@ mod tests {
     #[test]
     fn is_corrupted() {
         let px = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        let mut encoded = Encoder::new(8).encode(&px[..]).unwrap();
+        let mut encoded = encode(&px[..], 8).unwrap();
 
         assert_eq!(false, Decoder::new(8).is_corrupted(&encoded).unwrap());
 
@@ -446,9 +443,8 @@ mod tests {
     #[test]
     fn error_count() {
         let msg = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-        let encoder = Encoder::new(10);
 
-        let encoded = encoder.encode(&msg[..]).unwrap();
+        let encoded = encode(&msg[..], 10).unwrap();
         let mut errd = *encoded;
 
         errd[0] = 31;
