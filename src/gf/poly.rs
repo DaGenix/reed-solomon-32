@@ -16,6 +16,31 @@ impl Polynom {
     }
 
     #[inline]
+    pub const fn from(in_array: &[u8]) -> Polynom {
+        let mut poly = Polynom {
+            array: [0u8; crate::POLYNOMIAL_MAX_LENGTH],
+            length: in_array.len(),
+            dirty: false,
+        };
+        if in_array.len() > poly.array.len() {
+            // TODO: Make this a regular assert!() once panics in const
+            //       functions are allowed: https://rust-lang.github.io/rfcs/2345-const-panic.html
+            #[allow(unconditional_panic)]
+            ["in_array must not be bigger than crate::POLYNOMIAL_MAX_LENGTH"][1000];
+        }
+        // NOTE: rustc seems to be able to convert this into a memcpy for us - and the
+        // assert above seems to be key in helping it do that.
+        // We can't use memcpy directly, however, since its not usable in
+        // const functions.
+        let mut i = 0;
+        while i < in_array.len() {
+            poly.array[i] = in_array[i];
+            i += 1;
+        }
+        poly
+    }
+
+    #[inline]
     pub fn with_length(len: usize) -> Polynom {
         let mut p = Polynom::new();
         p.length = len;
@@ -85,16 +110,6 @@ impl DerefMut for Polynom {
     fn deref_mut(&mut self) -> &mut Self::Target {
         let len = self.len();
         &mut self.array[0..len]
-    }
-}
-
-impl<'a> From<&'a [u8]> for Polynom {
-    #[inline]
-    fn from(slice: &'a [u8]) -> Polynom {
-        debug_assert!(slice.len() <= crate::POLYNOMIAL_MAX_LENGTH);
-        let mut poly = Polynom::with_length(slice.len());
-        poly[..].copy_from_slice(slice);
-        poly
     }
 }
 
