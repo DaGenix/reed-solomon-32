@@ -45,7 +45,7 @@ fn check_data(msg: &[u8]) -> Result<()> {
 }
 
 /// Reed-Solomon BCH encoder
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Encoder {
     generator: Polynom,
 }
