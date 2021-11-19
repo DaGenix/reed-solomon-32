@@ -2,7 +2,7 @@ extern crate reed_solomon_32;
 extern crate criterion;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use reed_solomon_32::{Buffer, Decoder, encode};
+use reed_solomon_32::{Buffer, correct, encode};
 
 struct TestEncode {
     ecc: usize,
@@ -21,8 +21,7 @@ struct TestDecode {
 }
 
 fn test_decode(params: TestDecode) -> Buffer {
-    let decoder = Decoder::new(params.ecc);
-    decoder.correct(&params.encoded[..params.encoded_len], None).unwrap()
+    correct(&params.encoded[..params.encoded_len], params.ecc, None).unwrap()
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {

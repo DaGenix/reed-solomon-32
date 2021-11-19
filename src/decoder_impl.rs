@@ -4,6 +4,99 @@ use crate::gf::poly::Polynom;
 use crate::buffer::Buffer;
 use crate::gf;
 
+/// [`Decoder`] for messages with 0 ECC symbols
+pub const DECODER_0: Decoder = Decoder::new(0);
+
+/// [`Decoder`] for messages with 1 ECC symbol
+pub const DECODER_1: Decoder = Decoder::new(1);
+
+/// [`Decoder`] for messages with 2 ECC symbols
+pub const DECODER_2: Decoder = Decoder::new(2);
+
+/// [`Decoder`] for messages with 3 ECC symbols
+pub const DECODER_3: Decoder = Decoder::new(3);
+
+/// [`Decoder`] for messages with 4 ECC symbols
+pub const DECODER_4: Decoder = Decoder::new(4);
+
+/// [`Decoder`] for messages with 5 ECC symbols
+pub const DECODER_5: Decoder = Decoder::new(5);
+
+/// [`Decoder`] for messages with 6 ECC symbols
+pub const DECODER_6: Decoder = Decoder::new(6);
+
+/// [`Decoder`] for messages with 7 ECC symbols
+pub const DECODER_7: Decoder = Decoder::new(7);
+
+/// [`Decoder`] for messages with 8 ECC symbols
+pub const DECODER_8: Decoder = Decoder::new(8);
+
+/// [`Decoder`] for messages with 9 ECC symbols
+pub const DECODER_9: Decoder = Decoder::new(9);
+
+/// [`Decoder`] for messages with 10 ECC symbols
+pub const DECODER_10: Decoder = Decoder::new(10);
+
+/// [`Decoder`] for messages with 11 ECC symbol
+pub const DECODER_11: Decoder = Decoder::new(11);
+
+/// [`Decoder`] for messages with 12 ECC symbols
+pub const DECODER_12: Decoder = Decoder::new(12);
+
+/// [`Decoder`] for messages with 13 ECC symbols
+pub const DECODER_13: Decoder = Decoder::new(13);
+
+/// [`Decoder`] for messages with 14 ECC symbols
+pub const DECODER_14: Decoder = Decoder::new(14);
+
+/// [`Decoder`] for messages with 15 ECC symbols
+pub const DECODER_15: Decoder = Decoder::new(15);
+
+/// [`Decoder`] for messages with 16 ECC symbols
+pub const DECODER_16: Decoder = Decoder::new(16);
+
+/// [`Decoder`] for messages with 17 ECC symbols
+pub const DECODER_17: Decoder = Decoder::new(17);
+
+/// [`Decoder`] for messages with 18 ECC symbols
+pub const DECODER_18: Decoder = Decoder::new(18);
+
+/// [`Decoder`] for messages with 19 ECC symbols
+pub const DECODER_19: Decoder = Decoder::new(19);
+
+/// [`Decoder`] for messages with 20 ECC symbols
+pub const DECODER_20: Decoder = Decoder::new(20);
+
+/// [`Decoder`] for messages with 21 ECC symbol
+pub const DECODER_21: Decoder = Decoder::new(21);
+
+/// [`Decoder`] for messages with 22 ECC symbols
+pub const DECODER_22: Decoder = Decoder::new(22);
+
+/// [`Decoder`] for messages with 23 ECC symbols
+pub const DECODER_23: Decoder = Decoder::new(23);
+
+/// [`Decoder`] for messages with 24 ECC symbols
+pub const DECODER_24: Decoder = Decoder::new(24);
+
+/// [`Decoder`] for messages with 25 ECC symbols
+pub const DECODER_25: Decoder = Decoder::new(25);
+
+/// [`Decoder`] for messages with 26 ECC symbols
+pub const DECODER_26: Decoder = Decoder::new(26);
+
+/// [`Decoder`] for messages with 27 ECC symbols
+pub const DECODER_27: Decoder = Decoder::new(27);
+
+/// [`Decoder`] for messages with 28 ECC symbols
+pub const DECODER_28: Decoder = Decoder::new(28);
+
+/// [`Decoder`] for messages with 29 ECC symbols
+pub const DECODER_29: Decoder = Decoder::new(29);
+
+/// [`Decoder`] for messages with 30 ECC symbols
+pub const DECODER_30: Decoder = Decoder::new(30);
+
 /// Decoder error
 #[derive(Copy, Clone)]
 pub enum DecoderError {
@@ -56,16 +149,8 @@ pub struct Decoder {
 }
 
 impl Decoder {
-    /// Constructs a new `Decoder`.
-    ///
-    /// # Example
-    /// ```rust
-    /// use reed_solomon_32::Decoder;
-    ///
-    /// let decoder = Decoder::new(8);
-    /// ```
-    pub fn new(ecc_len: usize) -> Self {
-        Decoder { ecc_len: ecc_len }
+    const fn new(ecc_len: usize) -> Self {
+        Decoder { ecc_len }
     }
 
     /// Decodes block-encoded message and returns `Buffer` with corrected message and ecc offset.
@@ -74,10 +159,7 @@ impl Decoder {
     /// # Example
     /// ```rust
     /// use reed_solomon_32::encode;
-    /// use reed_solomon_32::Decoder;
-    ///
-    /// // decoder
-    /// let decoder = Decoder::new(4);
+    /// use reed_solomon_32::decoder::DECODER_4;
     ///
     /// // Encode message
     /// let mut encoded = encode(&[1, 2, 3, 4], 4).unwrap();
@@ -90,10 +172,11 @@ impl Decoder {
     /// let known_erasures = [3];
     ///
     /// // Decode and correct message,
-    /// let corrected = decoder.correct(&mut encoded, Some(&known_erasures)).unwrap();
+    /// let corrected = DECODER_4.correct_err_count(&mut encoded, Some(&known_erasures)).unwrap();
     ///
     /// // Check results
-    /// assert_eq!(&[1, 2, 3, 4], corrected.data())
+    /// assert_eq!(&[1, 2, 3, 4], corrected.0.data());
+    /// assert_eq!(2, corrected.1);
     /// ```
     pub fn correct_err_count(&self,
                              msg: &[u8],
@@ -147,10 +230,7 @@ impl Decoder {
     /// # Example
     /// ```rust
     /// use reed_solomon_32::encode;
-    /// use reed_solomon_32::Decoder;
-    ///
-    /// // decoder
-    /// let decoder = Decoder::new(4);
+    /// use reed_solomon_32::decoder::DECODER_4;
     ///
     /// // Encode message
     /// let mut encoded = encode(&[1, 2, 3, 4], 4).unwrap();
@@ -163,7 +243,7 @@ impl Decoder {
     /// let known_erasures = [3];
     ///
     /// // Decode and correct message,
-    /// let corrected = decoder.correct(&mut encoded, Some(&known_erasures)).unwrap();
+    /// let corrected = DECODER_4.correct(&mut encoded, Some(&known_erasures)).unwrap();
     ///
     /// // Check results
     /// assert_eq!(&[1, 2, 3, 4], corrected.data())
@@ -180,21 +260,18 @@ impl Decoder {
     /// # Example
     /// ```rust
     /// use reed_solomon_32::encode;
-    /// use reed_solomon_32::Decoder;
-    ///
-    /// // Create encoder and decoder
-    /// let decoder = Decoder::new(4);
+    /// use reed_solomon_32::decoder::DECODER_4;
     ///
     /// // Encode message
     /// let mut encoded = encode(&[1, 2, 3, 4], 4).unwrap();
     ///
-    /// assert_eq!(decoder.is_corrupted(&encoded).unwrap(), false);
+    /// assert_eq!(DECODER_4.is_corrupted(&encoded).unwrap(), false);
     ///
     /// // Corrupt message
     /// encoded[2] = 1;
     /// encoded[3] = 2;
     ///
-    /// assert_eq!(decoder.is_corrupted(&encoded).unwrap(), true);
+    /// assert_eq!(DECODER_4.is_corrupted(&encoded).unwrap(), true);
     /// ```
     pub fn is_corrupted(&self, msg: &[u8]) -> Result<bool> {
         check_message(msg)?;
@@ -381,6 +458,92 @@ impl Decoder {
 
         fsynd
     }
+}
+
+/// Decodes block-encoded message and returns `Buffer` with corrected message and ecc offset.
+/// Also includes the number of errors corrected.
+///
+/// # Example
+/// ```rust
+/// use reed_solomon_32::encode;
+/// use reed_solomon_32::correct_err_count;
+///
+/// // Encode message
+/// let mut encoded = encode(&[1, 2, 3, 4], 4).unwrap();
+///
+/// // Corrupt message
+/// encoded[2] = 1;
+/// encoded[3] = 2;
+///
+/// // Let's assume it's known that `encoded[3]` is an error
+/// let known_erasures = [3];
+///
+/// // Decode and correct message,
+/// let corrected = correct_err_count(&mut encoded, 4, Some(&known_erasures)).unwrap();
+///
+/// // Check results
+/// assert_eq!(&[1, 2, 3, 4], corrected.0.data());
+/// assert_eq!(2, corrected.1);
+/// ```
+pub fn correct_err_count(
+    msg: &[u8],
+    ecc: usize,
+    erase_pos: Option<&[u8]>,
+) -> Result<(Buffer, usize)> {
+    Decoder::new(ecc).correct_err_count(msg, erase_pos)
+}
+
+/// Decodes block-encoded message and returns `Buffer` with corrected message and ecc offset.
+///
+/// # Example
+/// ```rust
+/// use reed_solomon_32::encode;
+/// use reed_solomon_32::correct;
+///
+/// // Encode message
+/// let mut encoded = encode(&[1, 2, 3, 4], 4).unwrap();
+///
+/// // Corrupt message
+/// encoded[2] = 1;
+/// encoded[3] = 2;
+///
+/// // Let's assume it's known that `encoded[3]` is an error
+/// let known_erasures = [3];
+///
+/// // Decode and correct message,
+/// let corrected = correct(&mut encoded, 4, Some(&known_erasures)).unwrap();
+///
+/// // Check results
+/// assert_eq!(&[1, 2, 3, 4], corrected.data())
+/// ```
+pub fn correct(
+    msg: &[u8],
+    ecc: usize,
+    erase_pos: Option<&[u8]>,
+) -> Result<Buffer> {
+    Decoder::new(ecc).correct(msg, erase_pos)
+}
+
+/// Performs fast corruption check.
+///
+/// # Example
+/// ```rust
+/// use reed_solomon_32::encode;
+/// use reed_solomon_32::is_corrupted;
+///
+/// // Encode message
+/// let mut encoded = encode(&[1, 2, 3, 4], 4).unwrap();
+///
+/// assert_eq!(is_corrupted(&encoded, 4).unwrap(), false);
+///
+/// // Corrupt message
+/// encoded[2] = 1;
+/// encoded[3] = 2;
+///
+/// assert_eq!(is_corrupted(&encoded, 4).unwrap(), true);
+/// ```
+pub fn is_corrupted(msg: &[u8], ecc: usize) -> Result<bool> {
+    Decoder::new(ecc).is_corrupted(msg)
 }
 
 #[cfg(test)]

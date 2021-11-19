@@ -8,16 +8,13 @@
 //! # Example
 //! ```rust
 //! use reed_solomon_32::encode;
-//! use reed_solomon_32::Decoder;
+//! use reed_solomon_32::correct;
 //!
 //! fn main() {
 //!     let data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 //!
 //!     // Length of error correction code
 //!     let ecc_len = 8;
-//!
-//!     // Create encoder and decoder with
-//!     let dec = Decoder::new(ecc_len);
 //!
 //!     // Encode data
 //!     let encoded = encode(&data, ecc_len).unwrap();
@@ -30,7 +27,7 @@
 //!
 //!     // Try to recover data
 //!     let known_erasures = [0];
-//!     let recovered = dec.correct(&mut corrupted, Some(&known_erasures)).unwrap();
+//!     let recovered = correct(&mut corrupted, ecc_len, Some(&known_erasures)).unwrap();
 //!
 //!     let orig_str = std::str::from_utf8(&data).unwrap();
 //!     let recv_str = std::str::from_utf8(recovered.data()).unwrap();
@@ -51,13 +48,13 @@ const POLYNOMIAL_MAX_LENGTH: usize = 31;
 mod macros;
 mod gf;
 mod encoder_impl;
-mod decoder;
+mod decoder_impl;
 mod buffer;
 
 pub use encoder_impl::EncoderError;
 pub use encoder_impl::encode;
-pub use decoder::Decoder;
-pub use decoder::DecoderError;
+pub use decoder_impl::DecoderError;
+pub use decoder_impl::{correct, correct_err_count, is_corrupted};
 pub use buffer::Buffer;
 
 pub mod encoder {
@@ -106,5 +103,49 @@ pub mod encoder {
         ENCODER_28,
         ENCODER_29,
         ENCODER_30,
+    };
+}
+
+pub mod decoder {
+    //! This is a specialized module and generally [`correct_err_count`](crate::correct_err_count),
+    //! [`correct`](crate::correct), and [`is_corrupted`](crate::is_corrupted) functions
+    //! should be preferred.
+    //!
+    //! As of the current version of this crate, this module exists for future proofing
+    //! and to mirror the encode APIs. In the future, using these functions _may_
+    //! help decrease binary size. However, currently they do not significantly do so.
+    pub use crate::decoder_impl::{
+        Decoder,
+        DECODER_0,
+        DECODER_1,
+        DECODER_2,
+        DECODER_3,
+        DECODER_4,
+        DECODER_5,
+        DECODER_6,
+        DECODER_7,
+        DECODER_8,
+        DECODER_9,
+        DECODER_10,
+        DECODER_11,
+        DECODER_12,
+        DECODER_13,
+        DECODER_14,
+        DECODER_15,
+        DECODER_16,
+        DECODER_17,
+        DECODER_18,
+        DECODER_19,
+        DECODER_20,
+        DECODER_21,
+        DECODER_22,
+        DECODER_23,
+        DECODER_24,
+        DECODER_25,
+        DECODER_26,
+        DECODER_27,
+        DECODER_28,
+        DECODER_29,
+        DECODER_30,
     };
 }
