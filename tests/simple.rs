@@ -3,7 +3,7 @@ extern crate reed_solomon_32;
 use reed_solomon_32::encode;
 use reed_solomon_32::correct;
 
-const ECC_LEN: usize = 8;
+const ECC_LEN: u8 = 8;
 
 #[test]
 fn helloworld() {

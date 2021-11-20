@@ -176,7 +176,7 @@ impl Encoder {
 /// println!("data:  {:?}", encoded.data());
 /// println!("ecc:   {:?}", encoded.ecc());
 /// ```
-pub fn encode(data: &[u8], ecc: usize) -> Result<Buffer, UsageError> {
+pub fn encode(data: &[u8], ecc: u8) -> Result<Buffer, UsageError> {
     match ecc {
         0 => ENCODER_0.encode(data),
         1 => ENCODER_1.encode(data),
@@ -269,7 +269,7 @@ mod tests {
         let data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
         let ecc = [5, 10, 26, 18, 9, 22, 13, 21];
 
-        let encoded = super::encode(&data[..], ecc.len()).unwrap();
+        let encoded = super::encode(&data[..], ecc.len() as u8).unwrap();
 
         assert_eq!(data, encoded.data());
         assert_eq!(ecc, encoded.ecc());

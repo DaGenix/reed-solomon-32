@@ -5,7 +5,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use reed_solomon_32::{Buffer, correct, encode};
 
 struct TestEncode {
-    ecc: usize,
+    ecc: u8,
     message: [u8; 31],
     message_len: usize,
 }
@@ -15,7 +15,7 @@ fn test_encode(params: TestEncode) -> Buffer {
 }
 
 struct TestDecode {
-    ecc: usize,
+    ecc: u8,
     encoded: [u8; 31],
     encoded_len: usize,
 }

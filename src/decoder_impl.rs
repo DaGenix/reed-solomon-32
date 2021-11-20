@@ -100,16 +100,16 @@ pub const DECODER_30: Decoder = Decoder::new(30);
 /// Reed-Solomon BCH decoder
 #[derive(Debug, Copy, Clone)]
 pub struct Decoder {
-    ecc_len: usize,
+    ecc_len: u8,
 }
 
-fn check_message(msg: &[u8], ecc_len: usize) -> Result<(), UsageError> {
+fn check_message(msg: &[u8], ecc_len: u8) -> Result<(), UsageError> {
     // NOTE: ecc_len is checked elsewhere - its not possible to create a Decoder
     // with an invalid ecc_len.
     if msg.len() > 31 {
         return Err(invalid_data_len());
     }
-    if msg.len() < ecc_len {
+    if msg.len() < ecc_len as usize {
         return Err(invalid_data_len_for_ecc());
     }
     if msg.iter().any(|&x| x > 31) {
@@ -119,7 +119,7 @@ fn check_message(msg: &[u8], ecc_len: usize) -> Result<(), UsageError> {
 }
 
 impl Decoder {
-    const fn new(ecc_len: usize) -> Self {
+    const fn new(ecc_len: u8) -> Self {
         if ecc_len >= 31 {
             // TODO: Make this a regular assert!() or return a Result once panics in const
             //       functions are allowed: https://rust-lang.github.io/rfcs/2345-const-panic.html
@@ -161,7 +161,7 @@ impl Decoder {
         check_message(msg, self.ecc_len)?;
 
         if let Some(x) = erase_pos {
-            if x.len() > self.ecc_len {
+            if x.len() > self.ecc_len as usize {
                 return Err(CorrectionError::TooManyErrors);
             }
             if x.iter().any(|&err_pos| err_pos as usize > msg.len()) {
@@ -169,7 +169,7 @@ impl Decoder {
             }
         }
 
-       let mut msg = Buffer::from_slice(msg, msg.len() - self.ecc_len);
+       let mut msg = Buffer::from_slice(msg, msg.len() - self.ecc_len as usize);
 
         let erase_pos = if let Some(erase_pos) = erase_pos {
             for e_pos in erase_pos {
@@ -202,7 +202,7 @@ impl Decoder {
         if self.is_corrupted(&msg_out)? {
             Err(CorrectionError::TooManyErrors)
         } else {
-            Ok((Buffer::from_polynom(msg_out, msg.len() - self.ecc_len), fixed))
+            Ok((Buffer::from_polynom(msg_out, msg.len() - self.ecc_len as usize), fixed))
         }
     }
 
@@ -261,8 +261,8 @@ impl Decoder {
 
     fn calc_syndromes(&self, msg: &[u8]) -> Polynom {
         // index 0 is a pad for mathematical precision
-        let mut synd = Polynom::with_length(self.ecc_len + 1);
-        for i in 0..self.ecc_len {
+        let mut synd = Polynom::with_length(self.ecc_len as usize + 1);
+        for i in 0..self.ecc_len as usize {
             synd[i + 1] = msg.eval(gf::pow(2, i as i32))
         }
 
@@ -355,13 +355,13 @@ impl Decoder {
             (polynom![1], polynom![1])
         };
 
-        let synd_shift = if synd.len() > self.ecc_len {
-            synd.len() - self.ecc_len
+        let synd_shift = if synd.len() > self.ecc_len as usize {
+            synd.len() - self.ecc_len as usize
         } else {
             0
         };
 
-        for i in 0..(self.ecc_len - erase_count) {
+        for i in 0..(self.ecc_len as usize - erase_count) {
             let K = if erase_loc.is_some() {
                 erase_count + i + synd_shift
             } else {
@@ -397,7 +397,7 @@ impl Decoder {
             (errs - erase_count) * 2 + erase_count
         };
 
-        if errs > self.ecc_len {
+        if errs > self.ecc_len as usize {
             Err(CorrectionError::TooManyErrors)
         } else {
             Ok(err_loc)
@@ -468,7 +468,7 @@ impl Decoder {
 /// ```
 pub fn correct_err_count(
     msg: &[u8],
-    ecc: usize,
+    ecc: u8,
     erase_pos: Option<&[u8]>,
 ) -> Result<(Buffer, usize), CorrectionError> {
     if ecc >= 31 {
@@ -502,7 +502,7 @@ pub fn correct_err_count(
 /// ```
 pub fn correct(
     msg: &[u8],
-    ecc: usize,
+    ecc: u8,
     erase_pos: Option<&[u8]>,
 ) -> Result<Buffer, CorrectionError> {
     if ecc >= 31 {
@@ -529,7 +529,7 @@ pub fn correct(
 ///
 /// assert_eq!(is_corrupted(&encoded, 4).unwrap(), true);
 /// ```
-pub fn is_corrupted(msg: &[u8], ecc: usize) -> Result<bool, UsageError> {
+pub fn is_corrupted(msg: &[u8], ecc: u8) -> Result<bool, UsageError> {
     if ecc >= 31 {
         return Err(invalid_ecc().into());
     }
@@ -590,7 +590,7 @@ mod tests {
         let result = [10, 11, 18, 18, 11, 3, 19, 11, 14, 18, 1, 19, 16, 3, 28, 4, 20, 12, 12];
 
         assert_eq!(result,
-                   *Decoder::new(err_pos.len()).correct_errata(&msg, &synd, &err_pos).0);
+                   *Decoder::new(err_pos.len() as u8).correct_errata(&msg, &synd, &err_pos).0);
     }
 
     #[test]
