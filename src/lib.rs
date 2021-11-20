@@ -50,11 +50,11 @@ mod gf;
 mod encoder_impl;
 mod decoder_impl;
 mod buffer;
+mod err;
 
-pub use encoder_impl::EncoderError;
 pub use encoder_impl::encode;
-pub use decoder_impl::DecoderError;
 pub use decoder_impl::{correct, correct_err_count, is_corrupted};
+pub use err::{UsageError, CorrectionError, UsageErrorMessage};
 pub use buffer::Buffer;
 
 pub mod encoder {

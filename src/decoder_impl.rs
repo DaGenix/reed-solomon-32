@@ -1,7 +1,7 @@
-use core;
 use crate::gf::poly_math::*;
 use crate::gf::poly::Polynom;
 use crate::buffer::Buffer;
+use crate::err::{CorrectionError, invalid_data_len, invalid_data_len_for_ecc, invalid_ecc, invalid_erase_pos, invalid_symbol, UsageError};
 use crate::gf;
 
 /// [`Decoder`] for messages with 0 ECC symbols
@@ -97,59 +97,35 @@ pub const DECODER_29: Decoder = Decoder::new(29);
 /// [`Decoder`] for messages with 30 ECC symbols
 pub const DECODER_30: Decoder = Decoder::new(30);
 
-/// Decoder error
-#[derive(Copy, Clone)]
-pub enum DecoderError {
-    /// Message is unrecoverably corrupted
-    TooManyErrors,
-    /// An invalid input symbol was detected. All inputs must be numbers between 0 and 31, inclusive.
-    InvalidSymbol,
-    /// A message was too long. Messages must be no longer than 31 symbols.
-    MessageTooLong,
-}
-
-impl core::fmt::Debug for DecoderError {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        match self {
-            DecoderError::TooManyErrors =>
-                write!(f, "Message is unrecoverably corrupted"),
-            DecoderError::InvalidSymbol =>
-                write!(f, "Invalid symbol. All symbols must be be in the range [0, 31]."),
-            DecoderError::MessageTooLong =>
-                write!(f, "Message is too long: Length is greater than maximum of 31."),
-        }
-    }
-}
-
-impl core::fmt::Display for DecoderError {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        core::fmt::Debug::fmt(self, f)
-    }
-}
-
-#[cfg(feature = "std")]
-impl std::error::Error for DecoderError { }
-
-type Result<T> = core::result::Result<T, DecoderError>;
-
-fn check_message(msg: &[u8]) -> Result<()> {
-    if msg.len() > 31 {
-        return Err(DecoderError::MessageTooLong);
-    }
-    if msg.iter().any(|&x| x > 31) {
-        return Err(DecoderError::InvalidSymbol);
-    }
-    Ok(())
-}
-
 /// Reed-Solomon BCH decoder
 #[derive(Debug, Copy, Clone)]
 pub struct Decoder {
     ecc_len: usize,
 }
 
+fn check_message(msg: &[u8], ecc_len: usize) -> Result<(), UsageError> {
+    // NOTE: ecc_len is checked elsewhere - its not possible to create a Decoder
+    // with an invalid ecc_len.
+    if msg.len() > 31 {
+        return Err(invalid_data_len());
+    }
+    if msg.len() < ecc_len {
+        return Err(invalid_data_len_for_ecc());
+    }
+    if msg.iter().any(|&x| x > 31) {
+        return Err(invalid_symbol());
+    }
+    Ok(())
+}
+
 impl Decoder {
     const fn new(ecc_len: usize) -> Self {
+        if ecc_len >= 31 {
+            // TODO: Make this a regular assert!() or return a Result once panics in const
+            //       functions are allowed: https://rust-lang.github.io/rfcs/2345-const-panic.html
+            #[allow(unconditional_panic)]
+            ["Invalid ECC Value"][1000];
+        }
         Decoder { ecc_len }
     }
 
@@ -181,8 +157,17 @@ impl Decoder {
     pub fn correct_err_count(&self,
                              msg: &[u8],
                              erase_pos: Option<&[u8]>)
-                             -> Result<(Buffer, usize)> {
-        check_message(msg)?;
+                             -> Result<(Buffer, usize), CorrectionError> {
+        check_message(msg, self.ecc_len)?;
+
+        if let Some(x) = erase_pos {
+            if x.len() > self.ecc_len {
+                return Err(CorrectionError::TooManyErrors);
+            }
+            if x.iter().any(|&err_pos| err_pos as usize > msg.len()) {
+                return Err(invalid_erase_pos().into());
+            }
+        }
 
        let mut msg = Buffer::from_slice(msg, msg.len() - self.ecc_len);
 
@@ -194,10 +179,6 @@ impl Decoder {
         } else {
             &[]
         };
-
-        if erase_pos.len() > self.ecc_len {
-            return Err(DecoderError::TooManyErrors);
-        }
 
         let synd = self.calc_syndromes(&msg);
 
@@ -219,7 +200,7 @@ impl Decoder {
 
         // Check output message correctness
         if self.is_corrupted(&msg_out)? {
-            Err(DecoderError::TooManyErrors)
+            Err(CorrectionError::TooManyErrors)
         } else {
             Ok((Buffer::from_polynom(msg_out, msg.len() - self.ecc_len), fixed))
         }
@@ -251,7 +232,7 @@ impl Decoder {
     pub fn correct(&self,
                    msg: &[u8],
                    erase_pos: Option<&[u8]>)
-                   -> Result<Buffer> {
+                   -> Result<Buffer, CorrectionError> {
         self.correct_err_count(msg, erase_pos).map(|(r,_)| r)
      }
 
@@ -273,8 +254,8 @@ impl Decoder {
     ///
     /// assert_eq!(DECODER_4.is_corrupted(&encoded).unwrap(), true);
     /// ```
-    pub fn is_corrupted(&self, msg: &[u8]) -> Result<bool> {
-        check_message(msg)?;
+    pub fn is_corrupted(&self, msg: &[u8]) -> Result<bool, UsageError> {
+        check_message(msg, self.ecc_len)?;
         Ok((0..self.ecc_len).any(|x| msg.eval(gf::pow(2, x as i32)) != 0))
     }
 
@@ -367,7 +348,7 @@ impl Decoder {
                           synd: &[u8],
                           erase_loc: Option<&[u8]>,
                           erase_count: usize)
-                          -> Result<Polynom> {
+                          -> Result<Polynom, CorrectionError> {
         let (mut err_loc, mut old_loc) = if let Some(erase_loc) = erase_loc {
             (Polynom::from(erase_loc), Polynom::from(erase_loc))
         } else {
@@ -417,13 +398,13 @@ impl Decoder {
         };
 
         if errs > self.ecc_len {
-            Err(DecoderError::TooManyErrors)
+            Err(CorrectionError::TooManyErrors)
         } else {
             Ok(err_loc)
         }
     }
 
-    fn find_errors(&self, err_loc: &[u8], msg_len: usize) -> Result<Polynom> {
+    fn find_errors(&self, err_loc: &[u8], msg_len: usize) -> Result<Polynom, CorrectionError> {
         let errs = err_loc.len() - 1;
         let mut err_pos = polynom![];
 
@@ -435,7 +416,7 @@ impl Decoder {
         }
 
         if err_pos.len() != errs {
-            Err(DecoderError::TooManyErrors)
+            Err(CorrectionError::TooManyErrors)
         } else {
             Ok(err_pos)
         }
@@ -489,7 +470,10 @@ pub fn correct_err_count(
     msg: &[u8],
     ecc: usize,
     erase_pos: Option<&[u8]>,
-) -> Result<(Buffer, usize)> {
+) -> Result<(Buffer, usize), CorrectionError> {
+    if ecc >= 31 {
+        return Err(invalid_ecc().into());
+    }
     Decoder::new(ecc).correct_err_count(msg, erase_pos)
 }
 
@@ -520,7 +504,10 @@ pub fn correct(
     msg: &[u8],
     ecc: usize,
     erase_pos: Option<&[u8]>,
-) -> Result<Buffer> {
+) -> Result<Buffer, CorrectionError> {
+    if ecc >= 31 {
+        return Err(invalid_ecc().into());
+    }
     Decoder::new(ecc).correct(msg, erase_pos)
 }
 
@@ -542,7 +529,10 @@ pub fn correct(
 ///
 /// assert_eq!(is_corrupted(&encoded, 4).unwrap(), true);
 /// ```
-pub fn is_corrupted(msg: &[u8], ecc: usize) -> Result<bool> {
+pub fn is_corrupted(msg: &[u8], ecc: usize) -> Result<bool, UsageError> {
+    if ecc >= 31 {
+        return Err(invalid_ecc().into());
+    }
     Decoder::new(ecc).is_corrupted(msg)
 }
 

@@ -1,5 +1,6 @@
 use crate::gf::poly::Polynom;
 use crate::buffer::Buffer;
+use crate::err::{invalid_combined_len, invalid_data_len, invalid_ecc, invalid_symbol, UsageError};
 use crate::gf;
 
 /// [`Encoder`] for messages with 0 ECC symbols
@@ -95,47 +96,6 @@ pub const ENCODER_29: Encoder = Encoder::new(polynom![1, 27, 20, 19, 20, 18, 15,
 /// [`Encoder`] for messages with 30 ECC symbols
 pub const ENCODER_30: Encoder = Encoder::new(polynom![1, 18, 9, 22, 11, 23, 25, 30, 15, 21, 24, 12, 6, 3, 19, 27, 31, 29, 28, 14, 7, 17, 26, 13, 20, 10, 5, 16, 8, 4, 2]);
 
-/// Encoder error
-#[derive(Copy, Clone)]
-pub enum EncoderError {
-    /// An invalid input symbol was detected. All inputs must be numbers between 0 and 31, inclusive.
-    InvalidSymbol,
-    /// A message was too long. Messages must be no longer than 31 symbols.
-    MessageTooLong,
-}
-
-impl core::fmt::Debug for EncoderError {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        match self {
-            EncoderError::InvalidSymbol =>
-                write!(f, "Invalid symbol. All symbols must be be in the range [0, 31]."),
-            EncoderError::MessageTooLong =>
-                write!(f, "Message is too long: Length is greater than maximum of 31."),
-        }
-    }
-}
-
-impl core::fmt::Display for EncoderError {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        core::fmt::Debug::fmt(self, f)
-    }
-}
-
-#[cfg(feature = "std")]
-impl std::error::Error for EncoderError { }
-
-type Result<T> = core::result::Result<T, EncoderError>;
-
-fn check_data(msg: &[u8]) -> Result<()> {
-    if msg.len() > 31 {
-        return Err(EncoderError::MessageTooLong);
-    }
-    if msg.iter().any(|&x| x > 31) {
-        return Err(EncoderError::InvalidSymbol);
-    }
-    Ok(())
-}
-
 /// Reed-Solomon BCH encoder
 #[derive(Debug, Copy, Clone)]
 pub struct Encoder {
@@ -164,8 +124,16 @@ impl Encoder {
     /// println!("data:  {:?}", encoded.data());
     /// println!("ecc:   {:?}", encoded.ecc());
     /// ```
-    pub fn encode(&self, data: &[u8]) -> Result<Buffer> {
-        check_data(data)?;
+    pub fn encode(&self, data: &[u8]) -> Result<Buffer, UsageError> {
+        if data.len() > 31 {
+            return Err(invalid_data_len());
+        }
+        if data.len() + self.generator.len() - 1 > 31 {
+            return Err(invalid_combined_len());
+        }
+        if data.iter().any(|&x| x > 31) {
+            return Err(invalid_symbol());
+        }
 
         let mut data_out = Polynom::from(data);
         let data_len = data.len();
@@ -208,7 +176,7 @@ impl Encoder {
 /// println!("data:  {:?}", encoded.data());
 /// println!("ecc:   {:?}", encoded.ecc());
 /// ```
-pub fn encode(data: &[u8], ecc: usize) -> Result<Buffer> {
+pub fn encode(data: &[u8], ecc: usize) -> Result<Buffer, UsageError> {
     match ecc {
         0 => ENCODER_0.encode(data),
         1 => ENCODER_1.encode(data),
@@ -241,7 +209,7 @@ pub fn encode(data: &[u8], ecc: usize) -> Result<Buffer> {
         28 => ENCODER_28.encode(data),
         29 => ENCODER_29.encode(data),
         30 => ENCODER_30.encode(data),
-        _ => panic!("Invalid ecc value"),
+        _ => Err(invalid_ecc()),
     }
 }
 
