@@ -1,7 +1,8 @@
 //! Reed-Solomon BCH encoder and decoder suitable for `no_std` environment in GF(2^5).
 //!
-//! This is a fork of <https://github.com/mersinvald/reed-solomon-rs> - the primary change
-//! being that it operates in GF(2^5) instead of GF(2^8).
+//! This is a fork of <https://github.com/mersinvald/reed-solomon-rs> - the primary changes
+//! being that it operates in GF(2^5) instead of GF(2^8) and some significant revisions to
+//! the user facing API.
 //!
 //! This library implements block encoder and decoder: error correction code is appended to original data.
 //!
