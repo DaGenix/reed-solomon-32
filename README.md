@@ -8,33 +8,30 @@ This is a port of python implementation from [Wikiversity](https://en.wikiversit
 
 
 This is a fork of <https://github.com/mersinvald/reed-solomon-rs> - the primary change
-being that it operates in GF(2^5) instead of GF(2^8).
+being that it operates in GF(2^5) instead of GF(2^8) and that the public API has been
+modified.
 
 ## Setup 
 
 ```toml
 [dependencies]
-reed-solomon-32 = "^1.0.0"
+reed-solomon-32 = "^2.0.0"
 ```
 
 ## Example
 
 ```rust
-use reed_solomon_32::Encoder;
-use reed_solomon_32::Decoder;
+use reed_solomon_32::encode;
+use reed_solomon_32::correct;
 
 fn main() {
-    let data = b"Hello World!";
+    let data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     // Length of error correction code
     let ecc_len = 8;
 
-    // Create encoder and decoder with 
-    let enc = Encoder::new(ecc_len);
-    let dec = Decoder::new(ecc_len);
-
     // Encode data
-    let encoded = enc.encode(&data[..]);
+    let encoded = encode(&data, ecc_len).unwrap();
 
     // Simulate some transmission errors
     let mut corrupted = *encoded;
@@ -44,9 +41,9 @@ fn main() {
 
     // Try to recover data
     let known_erasures = [0];
-    let recovered = dec.correct(&mut corrupted, Some(&known_erasures)).unwrap();
+    let recovered = correct(&mut corrupted, ecc_len, Some(&known_erasures)).unwrap();
 
-    let orig_str = std::str::from_utf8(data).unwrap();
+    let orig_str = std::str::from_utf8(&data).unwrap();
     let recv_str = std::str::from_utf8(recovered.data()).unwrap();
 
     println!("message:               {:?}", orig_str);
