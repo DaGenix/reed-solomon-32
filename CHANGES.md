@@ -1,3 +1,9 @@
+2.0.1
+=====
+
+* Update README.md - the version from 2.0.0 still included an example from
+  1.0.0 which would no longer work and would be very confusing.
+
 2.0.0
 =====
 
