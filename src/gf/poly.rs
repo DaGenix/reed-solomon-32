@@ -1,6 +1,6 @@
 #[derive(Copy)]
 pub struct Polynom {
-    array: [u8; crate::POLYNOMIAL_MAX_LENGTH],
+    array: [u8; crate::POLYNOMIAL_MAX_LENGTH * 3 / 2],
     length: usize,
     dirty: bool,
 }
@@ -9,7 +9,7 @@ impl Polynom {
     #[inline]
     pub fn new() -> Polynom {
         Polynom {
-            array: [0; crate::POLYNOMIAL_MAX_LENGTH],
+            array: [0; crate::POLYNOMIAL_MAX_LENGTH * 3 / 2],
             length: 0,
             dirty: false,
         }
@@ -18,7 +18,7 @@ impl Polynom {
     #[inline]
     pub const fn from(in_array: &[u8]) -> Polynom {
         let mut poly = Polynom {
-            array: [0u8; crate::POLYNOMIAL_MAX_LENGTH],
+            array: [0u8; crate::POLYNOMIAL_MAX_LENGTH * 3 / 2],
             length: in_array.len(),
             dirty: false,
         };
@@ -26,7 +26,7 @@ impl Polynom {
             // TODO: Make this a regular assert!() once panics in const
             //       functions are allowed: https://rust-lang.github.io/rfcs/2345-const-panic.html
             #[allow(unconditional_panic)]
-            ["in_array must not be bigger than crate::POLYNOMIAL_MAX_LENGTH"][1000];
+            ["in_array must not be bigger than crate::POLYNOMIAL_MAX_LENGTH * 3 / 2"][1000];
         }
         // NOTE: rustc seems to be able to convert this into a memcpy for us - and the
         // assert above seems to be key in helping it do that.
