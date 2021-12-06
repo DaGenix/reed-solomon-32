@@ -666,4 +666,13 @@ mod tests {
 
         assert_eq!(result, **decoded);
     }
+
+    #[test]
+    fn decode_lots_of_errors() {
+        // fifteen 0s followed by fifteen 15s - with 30 error correcting
+        // symbols, this is the biggest error we can still correct.
+        let data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15];
+        let buffer = correct(&data, 30, None).unwrap();
+        assert_eq!(&[0u8][..], buffer.data());
+    }
 }
