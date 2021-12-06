@@ -1,3 +1,9 @@
+2.0.2
+=====
+
+* Fix panic!() that would occur when handling a message with a large
+  number of ECC symbols and also a large number of errors.
+
 2.0.1
 =====
 
